@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"webapp/models"
 	"webapp/pkg/config"
 )
 
@@ -18,12 +19,26 @@ var myCache  map[string] *template.Template
 
 var app *config.AppConfig
 
+func addDefaultData(a *models.TemplateData) *models.TemplateData{
+
+	return a
+}
+
 func NewTemplates(a *config.AppConfig){
 	app = a
 }
 
-func DisplayTemplates(w http.ResponseWriter, tmpl string){
-	tc := app.TemplateCache
+func DisplayTemplates(w http.ResponseWriter, tmpl string, td *models.TemplateData){
+
+	var tc map[string]*template.Template
+	if app.UseCache{
+		tc = app.TemplateCache
+
+	}else{
+		tc, _  = CreateCache()
+
+	}
+	//tc := app.TemplateCache
 
 
 	t, ok  := tc[tmpl]
@@ -34,7 +49,9 @@ func DisplayTemplates(w http.ResponseWriter, tmpl string){
 
 
 	buf := new(bytes.Buffer)
-	_ = t.Execute(buf, nil)
+
+	td = addDefaultData(td)
+	_ = t.Execute(buf, td)
 
 	_, err := buf.WriteTo(w)
 	if err!=nil{
