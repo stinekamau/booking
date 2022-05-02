@@ -9,8 +9,6 @@ import (
 )
 
 func routes(app *config.AppConfig) http.Handler {
-	//
-	//mux := pat.New()
 
 	mux := chi.NewRouter()
 
